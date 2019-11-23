@@ -22,7 +22,7 @@ passport.use(
       db.User.findOne({ where: {username: username}}).then(user => {
         // User Exists, send an error
         if(user != null)
-          return done(null, false, { message: "username taken"});
+          return done(null, false, { message: "Username Taken"});
         
         // Hash the users password
         bcrypt.hash(password, BCRYPT_SALT_ROUNDS).then(hash =>{

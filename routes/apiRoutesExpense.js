@@ -73,7 +73,9 @@ module.exports = function(app) {
       .then(function(dbExpense) {
         dbExpense.img = false; // No image exists yet for a just created expense.
 
-        res.json(dbExpense);
+        res.status(201).json(dbExpense);
+      }).catch(function(err) {
+        res.status(502).json({ message: "Internal server error"});
       });
   });
 
@@ -90,7 +92,7 @@ module.exports = function(app) {
           s3.deleteObject({Bucket: S3_BUCKET, Key: dbExpense.img}, function(err, result) {
             if(err) {
               console.log(err);
-              return res.status(500).end();
+              return res.status(500).json({ message: "Error deleting expense from database." });
             }
 
             deleteExpense(req.params.id, req.userId, res);
@@ -100,7 +102,7 @@ module.exports = function(app) {
           deleteExpense(req.params.id, req.userId, res);
       }
       else
-        res.status(404).end();
+        res.status(404).json({ message: "Expense not found." });
     })
     
   });
@@ -119,18 +121,18 @@ module.exports = function(app) {
         s3.getSignedUrl("getObject", {Bucket: S3_BUCKET, Key: dbExpense.img, Expires: 60 * 3}, function(err, result){
           if(err){
             console.log(err);
-            return res.status(500).end();
+            return res.status(500).json({ message: "Error getting image url." });
           }
 
           res.json(result);
         });
       }
       else {
-        return res.status(404).end();
+        return res.status(404).json({ message: "Expense not found." });
       }
     }).catch(function(err) {
       console.log(err);
-      return res.status(500).end();
+      return res.status(500).json({ message: "Error retrieving expense from database." });
     });
   });
 
@@ -157,20 +159,20 @@ module.exports = function(app) {
           function(err, result){
             if(err){
               console.log(err);
-              return res.status(500).json(false);
+              return res.status(500).json({ message: "Error in adding image to database." });
             }
 
             // update the expense with the images key
             db.Expense.update({ img: key }, { where: { id: dbExpense.id}} ).then(function() {
-              res.status(200).json(true);
+              res.status(200).json({ message: "Image added."});
             }).catch(function(err){
-              res.status(500).json(false);
+              res.status(500).json({ message: "Error in adding image to database." });
             });
 
           });
         }
         else{
-          res.status(404).end();
+          res.status(404).json({ message: "Expense not found." });
         }
       })
   });

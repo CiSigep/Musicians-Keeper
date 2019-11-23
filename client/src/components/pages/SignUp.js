@@ -1,39 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import axios from "axios";
 import { withRouter } from "react-router-dom";
-
-
-
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
-
-
-
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -78,7 +55,46 @@ function SignUp(props) {
       props.history.push("/signin");
     })
     .catch((error) => {
+      let errorsCopy = JSON.parse(JSON.stringify(errors));
+      for(let prop in errorsCopy){
+        errorsCopy[prop].error = true
+      }
+      errorsCopy["password"].message = error.response.data.message;
+
+      setErrors(errorsCopy);
     })
+  }
+
+  const [errors, setErrors] = useState({
+    firstName: {
+      error: false,
+      message: ""
+    },
+    lastName: {
+      error: false,
+      message: ""
+    },
+    email: {
+      error: false,
+      message: ""
+    },
+    username: {
+      error: false,
+      message: ""
+    },
+    password: {
+      error: false,
+      message: ""
+    }
+  });
+
+  const handleChange = (e) => {
+    let errorsCopy = JSON.parse(JSON.stringify(errors));
+    for(let prop in errorsCopy){
+      errorsCopy[prop].error = false;
+      errorsCopy[prop].message = "";
+    }
+    setErrors(errorsCopy);
   }
 
   return (
@@ -106,6 +122,9 @@ function SignUp(props) {
                 id="firstName"
                 label="First Name"
                 autoFocus
+                error={errors.firstName.error}
+                helperText={errors.firstName.message}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -117,6 +136,9 @@ function SignUp(props) {
                 label="Last Name"
                 name="lastName"
                 autoComplete="lname"
+                error={errors.lastName.error}
+                helperText={errors.lastName.message}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -128,6 +150,9 @@ function SignUp(props) {
                 label="Email Address"
                 name="email"
                 autoComplete="email"
+                error={errors.email.error}
+                helperText={errors.email.message}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -137,8 +162,11 @@ function SignUp(props) {
                 fullWidth
                 id="username"
                 label="Username"
-                name="email"
-                autoComplete="email"
+                name="username"
+                autoComplete="username"
+                error={errors.username.error}
+                helperText={errors.username.message}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -151,6 +179,9 @@ function SignUp(props) {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                error={errors.password.error}
+                helperText={errors.password.message}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12}>

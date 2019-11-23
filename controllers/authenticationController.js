@@ -9,28 +9,30 @@ module.exports = {
     passport.authenticate("register", (err, user, info) =>{
       if(err){
         console.log("Error occured: " + err);
-        res.status(500).send({ message: "Internal Server Error"});
+        res.status(500).json({ message: "Internal Server Error"});
       }
       if(info !== undefined){
         console.log(info.message);
-        return res.status(403).send(info.message);
+        return res.status(403).json({ message: info.message });
       }
       else
-        res.status(201).send({ message: "Created" });
+        res.status(201).json({ message: "User created." });
     })(req, res, next);
   },
   // Local Strategy Login
   loginUser: (req, res, next) => {
     passport.authenticate("login", (err, user, info) => {
-      if(err)
+      if(err){
         console.log("Error occured: " + err);
+        res.status(500).json({ message: "Internal Server Error"});
+      }
       if(info !== undefined){
         console.log(info.message);
-        res.status(401).send(info.message);
+        res.status(401).json({ message: info.message });
       }
       else {
         const token = jwt.sign({ id: user.id }, jwtConfig.secret, { expiresIn: 60 * 60 });
-        res.status(200).send({
+        res.status(200).json({
           auth: true,
           token,
           message: "Logged in"
